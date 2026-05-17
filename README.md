@@ -154,7 +154,194 @@ Model provider are supported by jupyter ai magics. Ensure the corresponding envi
 - [x] Apache Flink
 - [ ] Presto
 
-## 📚 Documentation
+## ❓ FAQ
+
+### What is Ryoma?
+
+Ryoma is an **AI-powered Data Agent framework** designed for data analysis, engineering, and visualization. It combines LangChain for AI interactions, Apache Arrow for efficient data operations, and Reflex for web UI development. Ryoma provides SQL agents, data source integrations, and a web-based "Ryoma Lab" interface.
+
+### How is Ryoma different from LangChain or Pandas?
+
+| Feature | Ryoma | LangChain | Pandas |
+|---------|-------|-----------|--------|
+| **Primary focus** | Data analysis with AI agents | General LLM application framework | Pure data manipulation |
+| **SQL Agent** | ✅ Built-in SQL agent with natural language queries | ❌ Requires custom chain | ❌ Manual SQL |
+| **Data sources** | ✅ Snowflake, Postgres, MySQL, BigQuery, files | ❌ Custom integration needed | ✅ Limited SQL support |
+| **Web UI** | ✅ Ryoma Lab (Reflex-based) | ❌ No built-in UI | ❌ None |
+| **Arrow support** | ✅ Apache Arrow for efficient analytics | ❌ No native Arrow | ⚠️ Limited |
+
+**Ryoma = LangChain + Data Sources + SQL Agent + UI**
+
+### What data sources are supported?
+
+| Source | Status |
+|--------|--------|
+| Snowflake | ✅ Supported |
+| SQLite | ✅ Supported |
+| BigQuery | ✅ Supported |
+| Postgres | ✅ Supported |
+| MySQL | ✅ Supported |
+| File (CSV, Excel, Parquet) | ✅ Supported |
+| Redshift | ❌ Coming soon |
+| DynamoDB | ❌ Coming soon |
+
+### What LLM providers are supported?
+
+Ryoma uses Jupyter AI Magics for LLM integration:
+
+| Provider | Provider ID | Environment Variable | Package |
+|----------|-------------|---------------------|---------|
+| OpenAI | `openai` | `OPENAI_API_KEY` | `langchain-openai` |
+| Anthropic | `anthropic` | `ANTHROPIC_API_KEY` | `langchain-anthropic` |
+| Gemini | `gemini` | `GOOGLE_API_KEY` | `langchain-google-genai` |
+| Cohere | `cohere` | `COHERE_API_KEY` | `cohere` |
+| AI21 | `ai21` | `AI21_API_KEY` | `ai21` |
+| Bedrock | `bedrock` | N/A | `boto3` |
+| Hugging Face | `huggingface_hub` | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub` |
+| NVIDIA | `nvidia-playground` | `NVIDIA_API_KEY` | `langchain_nvidia_ai_endpoints` |
+| GPT4All (local) | `gpt4all` | N/A | `gpt4all` |
+| Qianfan (ERNIE) | `qianfan` | `QIANFAN_AK`, `QIANFAN_SK` | `qianfan` |
+| SageMaker | `sagemaker-endpoint` | N/A | `boto3` |
+
+### How do I use the SQL Agent?
+
+```python
+from ryoma_ai import Ryoma
+from ryoma_data import DataSource
+
+# Connect to database
+datasource = DataSource(
+    "postgres",
+    host="localhost",
+    port=5432,
+    database="mydb",
+    user="user",
+    password="password"
+)
+
+# Create SQL agent
+ryoma = Ryoma(datasource=datasource)
+agent = ryoma.sql_agent(model="gpt-4", mode="enhanced")
+
+# Ask questions in natural language
+agent.stream("Show top 5 customers by purchase amount", display=True)
+
+# Continue tool execution
+from ryoma_ai.agent.workflow import ToolMode
+agent.stream(tool_mode=ToolMode.ONCE)
+```
+
+### What is Ryoma Lab?
+
+Ryoma Lab is a **web-based UI** for interacting with your data and AI agents. Built with Reflex framework, it provides:
+- Natural language query interface
+- Data visualization
+- SQL agent interaction
+- Model configuration
+
+**Start Ryoma Lab:**
+```shell
+# Create rxconfig.py in your project
+# Then run:
+ryoma_lab run
+```
+Access at `http://localhost:3000`
+
+### What processing engines are supported?
+
+| Engine | Status |
+|--------|--------|
+| Apache Spark | ✅ Supported |
+| Apache Flink | ✅ Supported |
+| Presto | ❌ Coming soon |
+
+### How do I install Ryoma?
+
+**Basic installation:**
+```shell
+pip install ryoma_ai
+```
+
+**With extra dependencies (e.g., Snowflake):**
+```shell
+pip install ryoma_ai[snowflake]
+```
+
+### How do I configure environment variables?
+
+Set LLM provider API keys:
+```shell
+# OpenAI
+export OPENAI_API_KEY="sk-..."
+
+# Anthropic
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# Gemini
+export GOOGLE_API_KEY="AIza..."
+```
+
+### What tech stack does Ryoma use?
+
+- **LangChain** — LLM integration and agent framework
+- **Reflex** — Python web UI framework
+- **Apache Arrow** — Efficient in-memory data format
+- **Jupyter AI Magics** — LLM provider abstraction
+- **Amundsen** — Data discovery and metadata
+- **Ibis** — Large dataset analytics
+- **Feast** — Feature store for ML
+
+### How do I contribute?
+
+1. Read [Contributing Guide](docs/source/contribution/contribution.md)
+2. Check [Documentation Index](docs/INDEX.md)
+3. Submit Pull Request
+
+For major changes, open an issue first.
+
+### Where can I find documentation?
+
+- **[Documentation Index](docs/INDEX.md)** — Start here
+- **[Getting Started](docs/source/getting-started/)** — Setup guides
+- **[Architecture](docs/source/architecture/)** — Internal design
+- **[Changelog](CHANGELOG.md)** — Version history
+
+### What license does Ryoma use?
+
+**Apache Software License 2.0** — Open-source, permissive license for commercial and personal use.
+
+### Troubleshooting
+
+**"No module named ryoma_ai":**
+```shell
+pip install ryoma_ai
+```
+
+**"Connection refused" for database:**
+- Check host/port are correct
+- Verify database is running
+- Check firewall settings
+
+**"API key not found":**
+```shell
+# Set the correct environment variable
+export OPENAI_API_KEY="your-key"
+# Or for Anthropic
+export ANTHROPIC_API_KEY="your-key"
+```
+
+**Ryoma Lab won't start:**
+- Ensure `rxconfig.py` exists in project directory
+- Check Reflex is installed: `pip install reflex`
+- Verify port 3000 is not blocked
+
+### Help Resources
+
+- **GitHub Issues** — [project-ryoma/ryoma/issues](https://github.com/project-ryoma/ryoma/issues)
+- **Documentation** — [project-ryoma.github.io/ryoma](https://project-ryoma.github.io/ryoma)
+- **Community** — Check README for Discord/Slack links
+
+---## 📚 Documentation
 
 For comprehensive documentation including architecture, API reference, and guides:
 
